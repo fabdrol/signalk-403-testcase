@@ -16,52 +16,30 @@ const server = {
       return debug('Delta is malformed')
     }
 
-    const promises = []
-    
-    delta.updates.forEach(update => {
-      if (!update || typeof update !== 'object' || !Array.isArray(update.values)) {
-        return
-      }
-
-      update.values.forEach(mutation => {
-        promises.push(this.putDelta(mutation.path, mutation.value))
-      })
-    })
-
-    if (Array.isArray(promises) && promises.length > 0) {
-      debug(`PUTting ${promises.length} values`)
-      return Promise.all(promises)
-    }
-
-    debug(`No deltas to PUT`)
-    return Promise.resolve([])
-  },
-
-  putDelta (path, value) {
     return new Promise((resolve, reject) => {
-      debug(`[pending] PUT ${path} => ${value}`)
-      
-      const request = client.request('PUT', {
-        put: {
-          path,
-          value
-        }
-      })
+      const timeout = setTimeout(() => {
+        reject(new Error(`Promise not resolved after 10000 ms`))
+      }, 10000)
 
-      request.once('response', response => {
-        if (response.statusCode !== 200) {
-          debug(`[failed] PUT ${response.statusCode} ${response.statusText || response.data || ''}`)
-          return reject(new Error(`PUT ${response.statusCode} ${response.statusText}`))
-        }
-        resolve(response)
-      })
+      client
+        .connection
+        .send(delta)
+        .then(result => {
+          if (timeout) {
+            clearTimeout(timeout)
+          }
 
-      request.once('error', err => {
-        debug(`[failed] PUT ${err.message}`)
-        reject(err)
-      })
-
-      request.send()
+          debug(`Sent delta; result: ${result}`)
+          resolve(delta)
+        })
+        .catch(err => {
+          if (timeout) {
+            clearTimeout(timeout)
+          }
+          
+          debug(`Error sending delta: ${err.message}`)
+          reject(err)
+        })
     })
   }
 }
