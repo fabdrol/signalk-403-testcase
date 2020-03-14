@@ -23,3 +23,12 @@ The user (xmiles@decipher.industries) used in this repo has admin rights.
 $ npm install
 $ DEBUG=signalk* node .
 ```
+
+
+#### Issues found (copied from Slack)
+
+- `signalk-server-node` does not handle steps 1.1 and/or 2 correctly of the security mechanisms (it definitely doesn't handle 2 correctly, 1.1 I'm not sure but that may be the cause)
+- In the original test case (the 403 error), the user doesn't seem to be authenticated (since we're only authenticated after a WS login, see A). One would except a 401 Unauthorized in this case.
+- The server doesn't adhere to the PUT request/response specification (by requiring a `source`). See https://github.com/SignalK/specification/blob/master/gitbook-docs/put.md. 
+
+
