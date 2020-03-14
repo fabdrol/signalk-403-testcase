@@ -1,0 +1,17 @@
+{
+  "name": "signalk-403-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Fabian Tollenaar <fabian@decipher.industries>",
+  "license": "Apache_2.0",
+  "dependencies": {
+    "@signalk/client": "git+https://github.com/SignalK/signalk-js-client.git#js-mdns",
+    "bonjour": "^3.5.0",
+    "debug": "^4.1.1"
+  }
+}
