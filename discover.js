@@ -44,7 +44,8 @@ const server = {
       const request = client.request('PUT', {
         put: {
           path,
-          value
+          value,
+          source: 'ws.AUTO' // FIXME: this is NOT repeat NOT in the docs but required by server anyway
         }
       })
 
@@ -67,6 +68,9 @@ const server = {
 }
 
 module.exports = function discover () {
+  const username = 'xmiles@decipher.industries'
+  const password = 'xmiles2020'
+
   client = new Client({
     hostname: 'signalk.decipher.digital',
     port: 443,
@@ -74,14 +78,17 @@ module.exports = function discover () {
     reconnect: true,
     autoConnect: false,
     notifications: false,
-    useAuthentication: true,
-    bearerTokenPrefix: 'JWT',
-    username: 'xmiles@decipher.industries',
-    password: 'xmiles2020'
+    useAuthentication: false,
+    bearerTokenPrefix: 'JWT'
   })
 
   client.on('connect', () => {
-    debug(`Connected to Signal K server`)
+    debug(`Connected to Signal K server, authenticating`)
+    client.authenticate(username, password)
+  })
+
+  client.once('authenticated', data => {
+    debug(`Authenticated with Signal K server: ${JSON.stringify(data, null, 2)}`)
     ready = true
   })
 
