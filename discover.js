@@ -36,7 +36,7 @@ const server = {
           if (timeout) {
             clearTimeout(timeout)
           }
-          
+
           debug(`Error sending delta: ${err.message}`)
           reject(err)
         })
@@ -45,6 +45,9 @@ const server = {
 }
 
 module.exports = function discover () {
+  const username = 'xmiles@decipher.industries'
+  const password = 'xmiles2020'
+
   client = new Client({
     hostname: 'signalk.decipher.digital',
     port: 443,
@@ -52,14 +55,17 @@ module.exports = function discover () {
     reconnect: true,
     autoConnect: false,
     notifications: false,
-    useAuthentication: true,
-    bearerTokenPrefix: 'JWT',
-    username: 'xmiles@decipher.industries',
-    password: 'xmiles2020'
+    useAuthentication: false,
+    bearerTokenPrefix: 'JWT'
   })
 
   client.on('connect', () => {
-    debug(`Connected to Signal K server`)
+    debug(`Connected to Signal K server, authenticating`)
+    client.authenticate(username, password)
+  })
+
+  client.once('authenticated', data => {
+    debug(`Authenticated with Signal K server: ${JSON.stringify(data, null, 2)}`)
     ready = true
   })
 
